@@ -455,6 +455,15 @@ public class StompClientLib: NSObject, SRWebSocketDelegate {
         self.closeSocket()
     }
     
+    public func disconnectWithHeader(header: [String: String]) {
+        connection = false
+        var headerToSend = header
+        headerToSend[StompCommands.commandDisconnect] = String(Int(NSDate().timeIntervalSince1970))
+        sendFrame(command: StompCommands.commandDisconnect, header: headerToSend, body: nil)
+        // Close the socket to allow recreation
+        self.closeSocket()
+    }
+    
     // Reconnect after one sec or arg, if reconnect is available
     // TODO: MAKE A VARIABLE TO CHECK RECONNECT OPTION IS AVAILABLE OR NOT
     public func reconnect(request: NSURLRequest, delegate: StompClientLibDelegate, connectionHeaders: [String: String] = [String: String](), time: Double = 1.0, exponentialBackoff: Bool = true){
