@@ -376,6 +376,11 @@ public class StompClientLib: NSObject, SRWebSocketDelegate {
         subscribeToDestination(destination: destination, ackMode: .AutoMode)
     }
     
+    public func subscribeWithHeader(destination: String, header: [String: String]) {
+        connection = true
+        subscribeToDestinationWithHeader(destination: destination, header: header, ackMode: .AutoMode)
+    }
+    
     public func subscribeToDestination(destination: String, ackMode: StompAckMode) {
         var ack = ""
         switch ackMode {
@@ -392,6 +397,29 @@ public class StompClientLib: NSObject, SRWebSocketDelegate {
         var headers = [StompCommands.commandHeaderDestination: destination, StompCommands.commandHeaderAck: ack, StompCommands.commandHeaderDestinationId: ""]
         if destination != "" {
             headers = [StompCommands.commandHeaderDestination: destination, StompCommands.commandHeaderAck: ack, StompCommands.commandHeaderDestinationId: destination]
+        }
+        self.sendFrame(command: StompCommands.commandSubscribe, header: headers, body: nil)
+    }
+    
+    public func subscribeToDestinationWithHeader(destination: String, header: [String: String], ackMode: StompAckMode) {
+        var ack = ""
+        switch ackMode {
+        case StompAckMode.ClientMode:
+            ack = StompCommands.ackClient
+            break
+        case StompAckMode.ClientIndividualMode:
+            ack = StompCommands.ackClientIndividual
+            break
+        default:
+            ack = StompCommands.ackAuto
+            break
+        }
+        var headers = [StompCommands.commandHeaderDestination: destination, StompCommands.commandHeaderAck: ack, StompCommands.commandHeaderDestinationId: ""]
+        if destination != "" {
+            headers = [StompCommands.commandHeaderDestination: destination, StompCommands.commandHeaderAck: ack, StompCommands.commandHeaderDestinationId: destination]
+        }
+        for i in header {
+            headers[i.key] = i.value
         }
         self.sendFrame(command: StompCommands.commandSubscribe, header: headers, body: nil)
     }
